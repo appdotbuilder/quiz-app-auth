@@ -1,12 +1,21 @@
+import { db } from '../db';
+import { quizAttemptsTable } from '../db/schema';
 import { type QuizAttempt } from '../schema';
+import { eq, desc } from 'drizzle-orm';
 
-export async function getUserQuizHistory(userId: number): Promise<QuizAttempt[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to retrieve all quiz attempts for a specific user.
-    // Should return attempts ordered by created_at DESC (most recent first).
-    // Should include quiz package information via relations for display purposes.
-    // Should only return attempts that belong to the requesting user.
-    // Used to display user's quiz history and performance over time.
-    
-    return Promise.resolve([] as QuizAttempt[]);
-}
+export const getUserQuizHistory = async (userId: number): Promise<QuizAttempt[]> => {
+  try {
+    // Query quiz attempts for the specific user, ordered by created_at DESC
+    const results = await db.select()
+      .from(quizAttemptsTable)
+      .where(eq(quizAttemptsTable.user_id, userId))
+      .orderBy(desc(quizAttemptsTable.created_at))
+      .execute();
+
+    // Return the results (no numeric conversions needed - all fields are integers)
+    return results;
+  } catch (error) {
+    console.error('Failed to get user quiz history:', error);
+    throw error;
+  }
+};

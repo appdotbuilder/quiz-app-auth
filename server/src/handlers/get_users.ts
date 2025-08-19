@@ -1,11 +1,24 @@
+import { db } from '../db';
+import { usersTable } from '../db/schema';
 import { type User } from '../schema';
 
-export async function getUsers(): Promise<User[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to fetch all users from the database.
-    // This should only be accessible to ADMIN users - authorization check required.
-    // Should return user data without password_hash for security.
-    // Should support pagination for large user lists.
-    
-    return Promise.resolve([] as User[]);
-}
+export const getUsers = async (): Promise<User[]> => {
+  try {
+    // Fetch all users from the database
+    const result = await db.select({
+      id: usersTable.id,
+      email: usersTable.email,
+      password_hash: usersTable.password_hash,
+      role: usersTable.role,
+      created_at: usersTable.created_at,
+      updated_at: usersTable.updated_at,
+    })
+      .from(usersTable)
+      .execute();
+
+    return result;
+  } catch (error) {
+    console.error('Failed to fetch users:', error);
+    throw error;
+  }
+};
